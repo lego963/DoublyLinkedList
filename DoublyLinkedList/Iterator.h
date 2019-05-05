@@ -1,41 +1,48 @@
 #pragma once
+
 #include "Node.h"
 
-template <class T>
+template<class T>
 class iterator
 {
-private:
-	node<T>* current_node_;
-
 public:
-	iterator(node<T>* node = nullptr) :current_node_(node) {}
+	node<T>* current;
 
-	node<T>* next_node()
+	explicit iterator(node<T>*& ptr) : current(ptr) {}
+
+	T& operator*()
 	{
-		if (current_node_ == nullptr) {
-			return nullptr;
-		}
-		current_node_ = current_node_->next;
-		return current_node_;
+		return current->data;
 	}
 
-	node<T>* previous_node() 
+	iterator& operator++()
 	{
-		if (current_node_ == nullptr) 
-		{
-			return nullptr;
-		}
-		current_node_ = current_node_->prev;
-		return current_node_;
+		current = current->next;
+		return *this;
 	}
 
-	~iterator()
+	iterator operator++(int)
 	{
-		if (current_node_ == nullptr)
-		{
-			current_node_ = NULL;
-		}
-		delete current_node_;
+		auto temp = *this;
+		current = current->next;
+		return temp;
+	}
+
+	iterator& operator--()
+	{
+		current = current->prev;
+		return *this;
+	}
+
+	iterator operator--(int)
+	{
+		iterator temp = *this;
+		current = current->prev;
+		return temp;
+	}
+
+	bool operator != (const iterator<T>& it)
+	{
+		return current != it.current;
 	}
 };
-

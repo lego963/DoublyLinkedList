@@ -1,204 +1,192 @@
 #pragma once
 #include "Node.h"
 #include "Iterator.h"
-#include <iostream>
 
-template <class T>
+template<class T>
 class list
 {
-private:
+	int length_;
 	node<T>* head_;
 	node<T>* tail_;
+
 public:
 	list()
 	{
-		head_ = new node<T>();
-		tail_ = new node<T>();
-	}
-
-	bool is_empty()
-	{
-		return (head_->next == NULL);
-	}
-
-	void insert_first(T & e)
-	{
-		if (is_empty())
-		{
-			auto* new_node = new node<T>(e);
-			head_->next = new_node;
-			tail_->prev = new_node;
-		}
-		else
-		{
-			auto* actual_first = head_->next;
-			auto* new_node = new node<T>(e, actual_first);
-			actual_first->prev = new_node;
-			head_->next = new_node;
-		}
-	}
-
-	void insert_last(T & e)
-	{
-		if (is_empty())
-		{
-			auto* new_node = new node<T>(e);
-			head_->next = new_node;
-			tail_->prev = new_node;
-		}
-		else
-		{
-			auto* actual_last = tail_->prev;
-			auto* new_node = new node<T>(e, NULL, actual_last);
-			actual_last->next = new_node;
-			tail_->prev = new_node;
-		}
-	}
-
-	bool insertBefore(node<T> * ref, T & e) {
-		if (is_empty())
-		{
-			return false;
-		}
-		auto* search_ref = head_->next;
-		while (search_ref != nullptr)
-		{
-			if (search_ref == ref)
-			{
-				break;
-			}
-			search_ref = search_ref->next;
-		}
-		if (search_ref == nullptr)
-		{
-			return false;
-		}
-		else
-		{
-			auto* before_ref = search_ref->prev;
-			auto* new_node = new node<T>(e, search_ref, before_ref);
-			if (before_ref == nullptr)
-			{
-				head_->next = new_node;
-			}
-			else
-			{
-				before_ref->next = new_node;
-			}
-			search_ref->prev = new_node;
-			return true;
-		}
-	}
-
-	bool insert_after(node<T> * ref, T & e)
-	{
-		if (is_empty())
-		{
-			return false;
-		}
-		auto* search_ref = head_->next;
-		while (search_ref != nullptr)
-		{
-			if (search_ref == ref)
-			{
-				break;
-			}
-			search_ref = search_ref->next;
-		}
-		if (search_ref == nullptr)
-		{
-			return false;
-		}
-		else
-		{
-			auto* after_ref = search_ref->next;
-			auto* new_node = new node<T>(e, after_ref, search_ref);
-			if (after_ref == nullptr)
-			{
-				tail_->prev = new_node;
-			}
-			else
-			{
-				after_ref->prev = new_node;
-			}
-			search_ref->next = new_node;
-			return true;
-		}
-	}
-
-	bool remove(node<T> * r)
-	{
-		if (is_empty())
-		{
-			return false;;
-		}
-		auto* remove_node = tail_->prev;
-		while (remove_node != nullptr)
-		{
-			if (remove_node == r)
-			{
-				break;
-			}
-			remove_node = remove_node->prev;
-		}
-		if (remove_node == nullptr)
-		{
-			return false;
-		}
-		else
-		{
-			auto* after_remove = remove_node->next;
-			auto* before_remove = remove_node->prev;
-			if (after_remove == nullptr)
-			{
-				tail_->prev = before_remove;
-			}
-			else
-			{
-				after_remove->prev = before_remove;
-			}
-			if (before_remove == nullptr)
-			{
-				head_->next = after_remove;
-			}
-			else
-			{
-				before_remove->next = after_remove;
-			}
-			delete remove_node;
-			return true;
-		}
+		length_ = 0;
+		head_ = tail_ = nullptr;
 	}
 
 	void clear()
 	{
-		auto counter = 0;
-		while (tail_->prev != NULL)
+		this->~list();
+	}
+
+	bool is_empty() const
+	{
+		return !length_;
+	}
+
+	void push_front(const T& value)
+	{
+		if (head_ == nullptr)
 		{
-			auto* remove = tail_->prev;
-			tail_->prev = remove->prev;
-			delete remove;
-			counter++;
+			head_ = new node<T>(value);
+			tail_ = head_;
+		}
+		else
+		{
+			auto* temp = new node<T>(value);
+			temp->next = head_;
+			head_->prev = temp;
+			head_ = temp;
+		}
+		length_++;
+	}
+
+	void push_back(const T& value)
+	{
+		if (head_ == nullptr)
+		{
+			head_ = new node<T>(value);
+			tail_ = head_;
+		}
+		else
+		{
+			auto* temp = new node<T>(value);
+			tail_->next = temp;
+			temp->prev = tail_;
+			tail_ = temp;
+		}
+		length_++;
+	}
+
+	void pop_front()
+	{
+		if (!this->is_empty())
+		{
+			head_ = head_->next;
+			head_->prev = nullptr;
+			length_--;
 		}
 	}
 
-	iterator<T>* get_iterator_at_head()
+	void pop_back()
 	{
-		auto* i = new iterator<T>(head_);
-		return i;
+		if (!this->is_empty())
+		{
+			tail_ = tail_->prev;
+			tail_->next = nullptr;
+			length_--;
+		}
 	}
 
-	iterator<T>* get_iterator_at_tail()
+	iterator<T> begin()
 	{
-		auto* i = new iterator<T>(tail_);
-		return i;
+		auto it(head_);
+		return it;
 	}
 
+	iterator<T> end()
+	{
+		auto it(tail_->next);
+		return it;
+	}
+
+	void insert(iterator<T> it, const T& value)
+	{
+		node<T>* temp = new node<T>(value);
+
+		if (is_empty())
+		{
+			head_ = tail_ = temp;
+			temp->next = temp->prev = nullptr;
+		}
+		else
+		{
+			if (it.current == nullptr)
+			{
+				temp->next = nullptr;
+
+				tail_->next = temp;
+				temp->prev = tail_;
+
+				tail_ = temp;
+			}
+			else
+			{
+				if (it.current->prev == nullptr)
+				{
+					temp->prev = nullptr;
+					head_ = temp;
+				}
+				else
+				{
+					it.current->prev->next = temp;
+					temp->prev = it.current->prev;
+				}
+
+				temp->next = it.current;
+				it.current->prev = temp;
+			}
+		}
+
+		length_++;
+	}
+
+	void erase(iterator<T> it)
+	{
+
+		if (it.current != nullptr)
+		{
+			if (it.current->prev == nullptr && it.current->next == nullptr)
+			{
+				head_ = tail_ = nullptr;
+			}
+
+			if (it.current->prev == nullptr && it.current->next != nullptr)
+			{
+				it.current->next->prev = nullptr;
+				head_ = it.current->next;
+			}
+
+			if (it.current->prev != nullptr && it.current->next == nullptr)
+			{
+				it.current->prev->next = nullptr;
+				tail_ = it.current->prev;
+			}
+
+			if (it.current->prev != nullptr && it.current->next != nullptr)
+			{
+				it.current->prev->next = it.current->next;
+				it.current->next->prev = it.current->prev;
+			}
+
+			length_--;
+			delete it.current;
+		}
+	}
 
 	~list()
 	{
-		clear();
-		delete head_;
-		delete tail_;
+		if (!is_empty())
+		{
+			node<T>* tmp = head_;
+			while (true)
+			{
+				tmp = tmp->next;
+				if (tmp != nullptr)
+				{
+					delete tmp->prev;
+					tmp->prev = nullptr;
+				}
+				else
+				{
+					delete tail_;
+					tail_ = head_ = nullptr;
+					break;
+				}
+			}
+			length_ = 0;
+		}
 	}
-};
+};
