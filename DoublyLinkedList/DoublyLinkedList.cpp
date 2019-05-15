@@ -21,15 +21,5 @@ int main()
 	}
 	cout << endl;
 
-	list<string> listOfStrings;
-	listOfStrings.push_back("testBack1");
-	listOfStrings.push_back("testBack2");
-	listOfStrings.push_front("testFront1");
-
-	for (auto iter = listOfStrings.begin(); iter != listOfStrings.end(); iter++)
-	{
-		cout << *iter << " ";
-	}
-
 	return 0;
 }

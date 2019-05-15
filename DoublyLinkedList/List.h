@@ -82,13 +82,13 @@ public:
 
 	iterator<T> begin()
 	{
-		auto it(head_);
+		iterator<T> it(head_);
 		return it;
 	}
 
 	iterator<T> end()
 	{
-		auto it(tail_->next);
+		iterator<T> it(tail_->next);
 		return it;
 	}
 
@@ -189,4 +189,4 @@ public:
 			length_ = 0;
 		}
 	}
-};
+};
